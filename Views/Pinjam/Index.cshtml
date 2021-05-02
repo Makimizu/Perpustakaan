@@ -1,0 +1,159 @@
+﻿@{
+    ViewData["Title"] = "Pinjam Buku";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>Menu untuk melakukan pinjam buku</p>
+
+<div class="row">
+    <div class="col-md-12">
+        <button type="button" id="add" class="btn btn-primary add" data-target="#addModalPinjam" data-toggle="modal">Tambah Pinjam Buku</button>
+    </div>
+    <div class="col-md-12">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>No. Pinjam</th>
+                    <th>Tanggal</th>
+                    <th>Penyewa</th>
+                    <th>Jenis Buku</th>
+                    <th>Jumlah</th>
+                    <th>Tanggal Kembali</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{var i = 1;}
+                @foreach (var pinjam in ViewBag.Pinjam)
+                {
+                    <tr>
+                        <td>@pinjam.NoPinjam</td>
+                        <td>@Convert.ToDateTime(pinjam.Tanggal).ToString("dd-MM-yyyy")</td>
+                        <td>@pinjam.Penyewa</td>
+                        <td>@pinjam.JenisBuku</td>
+                        <td>@pinjam.LamaPinjam</td>
+                        <td>@Convert.ToDateTime(pinjam.TanggalKembali).ToString("dd-MM-yyyy")</td>
+                        <td>@pinjam.Status</td>
+                        <td>
+                            <input type="hidden" class="id" value="@pinjam.NoPinjam" />
+                            <a href="#EditModalPinjam" class="edit btn btn-warning" data-toggle="modal">Ubah</a>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="addModalPinjam" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-controller="Pinjam" asp-action="create">
+                <div class="modal-header">
+                    <h4 class="modal-title">Tambah Pinjam Buku</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Lama Pinjam</label>
+                        <input type="text" class="form-control" required="required" name="LamaPinjam" />
+                    </div>
+                    <div class="form-group">
+                        <label>Penyewa</label>
+                        <input type="text" class="form-control" required="required" name="Penyewa" />
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Buku</label>
+                        <select class="custom-select" required="required" name="JenisBuku">
+                            <option value="Programming">Programming</option>
+                            <option value="Design">Design</option>
+                            <option value="Computer">Computer</option>
+                            <option value="Networking">Networking</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-success" value="Save" />
+                    <input type="button" class="btn btn-danger" value="Cancel" data-dismiss="modal" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="EditModalPinjam" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-controller="Pinjam" asp-action="update">
+                <div class="modal-header">
+                    <h4 class="modal-title">Ubah Pinjam Buku</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>No. Pinjam</label>
+                        <input type="text" class="form-control" readonly="readonly" id="NoPinjam" name="NoPinjam" />
+                    </div>
+                    <div class="form-group">
+                        <label>Penyewa</label>
+                        <input type="text" class="form-control" readonly="readonly" name="Penyewa" id="Penyewa"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Buku</label>
+                        <input type="text" class="form-control" readonly="readonly" name="JenisBuku" id="JenisBuku" />
+                    </div>
+                    <div class="form-group">
+                        <label>Lama Pinjam</label>
+                        <input type="text" class="form-control" readonly="readonly" name="LamaPinjam" id="LamaPinjam" />
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Pinjam</label>
+                        <input type="text" class="form-control" readonly="readonly" name="Tanggal" id="Tanggal" />
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Kembali</label>
+                        <input type="text" class="form-control" readonly="readonly" name="TanggalKembali" id="TanggalKembali" />
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="custom-select" required="required" name="Status">
+                            <option value="Loan">Loan</option>
+                            <option value="Return">Return</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-success" value="Save" />
+                    <input type="button" class="btn btn-danger" value="Cancel" data-dismiss="modal" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('table .edit').on('click', function () {
+                var id = $(this).parent().find('.id').val();
+                
+                $.ajax({
+                    url: '/Pinjam/find/' + id,
+                    dataType: 'json',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#EditModalPinjam #NoPinjam').val(data.noPinjam);
+                        $('#EditModalPinjam #Penyewa').val(data.penyewa);
+                        $('#EditModalPinjam #JenisBuku').val(data.jenisBuku);
+                        $('#EditModalPinjam #LamaPinjam').val(data.lamaPinjam);
+                        $('#EditModalPinjam #TanggalKembali').val(data.tanggal);
+                        $('#EditModalPinjam #TanggalKembali').val(data.tanggalKembali);
+                    }
+                });
+            });
+        });
+    </script>
+}
